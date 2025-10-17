@@ -11,67 +11,63 @@ const canvas = document.querySelector('canvas.webgl')
 const scene = new THREE.Scene()
 
 /**
- * Materials
+ * Example 1: BoxGeometry with subdivisions and wireframe
  */
-const basicWireframeMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true })
+// const geometry = new THREE.BoxGeometry(1, 1, 1, 2, 2, 2)
+// const material = new THREE.MeshBasicMaterial({ color: 0x00ffff, wireframe: true })
+// const mesh = new THREE.Mesh(geometry, material)
+// scene.add(mesh)
 
 /**
- * Geometries demos
+ * Example 2: SphereGeometry (you can toggle this one instead)
  */
-// 1) Box with subdivisions (wireframe)
-const boxGeometry = new THREE.BoxGeometry(1, 1, 1, 2, 2, 2)
-const boxMesh = new THREE.Mesh(boxGeometry, basicWireframeMaterial)
-boxMesh.position.x = -2
-scene.add(boxMesh)
+// const geometry = new THREE.SphereGeometry(1, 32, 32)
+// const material = new THREE.MeshBasicMaterial({ color: 0x00ffff, wireframe: true })
+// const mesh = new THREE.Mesh(geometry, material)
+// scene.add(mesh)
 
-// 2) Sphere with segments (wireframe)
-const sphereGeometry = new THREE.SphereGeometry(0.75, 32, 32)
-const sphereMesh = new THREE.Mesh(sphereGeometry, basicWireframeMaterial)
-sphereMesh.position.x = 0
-scene.add(sphereMesh)
+/**
+ * Example 3: Custom BufferGeometry with random triangles
+ */
+const geometry = new THREE.BufferGeometry()
+const count = 50 // number of triangles
+const positionsArray = new Float32Array(count * 3 * 3) // 3 vertices per triangle, 3 coords per vertex
 
-// 3) Custom BufferGeometry with random triangles
-const randomGeometry = new THREE.BufferGeometry()
-const triangleCount = 50
-const positionsArray = new Float32Array(triangleCount * 3 * 3)
-for(let i = 0; i < triangleCount * 3 * 3; i++)
-{
-	positionsArray[i] = (Math.random() - 0.5) * 2 // random in [-1, 1] scaled
+for (let i = 0; i < positionsArray.length; i++) {
+    positionsArray[i] = (Math.random() - 0.5) * 4
 }
+
 const positionsAttribute = new THREE.BufferAttribute(positionsArray, 3)
-randomGeometry.setAttribute('position', positionsAttribute)
-const randomMesh = new THREE.Mesh(randomGeometry, basicWireframeMaterial)
-randomMesh.position.x = 2
-scene.add(randomMesh)
+geometry.setAttribute('position', positionsAttribute)
+
+const material = new THREE.MeshBasicMaterial({ color: 0x007FFF, wireframe: true })
+const mesh = new THREE.Mesh(geometry, material)
+scene.add(mesh)
 
 /**
  * Sizes
  */
 const sizes = {
-	width: window.innerWidth,
-	height: window.innerHeight
+    width: window.innerWidth,
+    height: window.innerHeight
 }
 
-window.addEventListener('resize', () =>
-{
-	// Update sizes
-	sizes.width = window.innerWidth
-	sizes.height = window.innerHeight
+window.addEventListener('resize', () => {
+    sizes.width = window.innerWidth
+    sizes.height = window.innerHeight
 
-	// Update camera
-	camera.aspect = sizes.width / sizes.height
-	camera.updateProjectionMatrix()
+    camera.aspect = sizes.width / sizes.height
+    camera.updateProjectionMatrix()
 
-	// Update renderer
-	renderer.setSize(sizes.width, sizes.height)
-	renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    renderer.setSize(sizes.width, sizes.height)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
 
 /**
  * Camera
  */
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.z = 4
+camera.position.z = 3
 scene.add(camera)
 
 /**
@@ -84,7 +80,7 @@ controls.enableDamping = true
  * Renderer
  */
 const renderer = new THREE.WebGLRenderer({
-	canvas: canvas
+    canvas: canvas
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
@@ -96,21 +92,10 @@ const clock = new THREE.Clock()
 
 const tick = () =>
 {
-	const elapsedTime = clock.getElapsedTime()
-
-	// Optional: slow rotations for visual interest
-	boxMesh.rotation.y = elapsedTime * 0.2
-	sphereMesh.rotation.y = elapsedTime * 0.2
-	randomMesh.rotation.y = elapsedTime * 0.2
-
-	// Update controls
-	controls.update()
-
-	// Render
-	renderer.render(scene, camera)
-
-	// Call tick again on the next frame
-	window.requestAnimationFrame(tick)
+    const elapsedTime = clock.getElapsedTime()
+    controls.update()
+    renderer.render(scene, camera)
+    window.requestAnimationFrame(tick)
 }
 
 tick()
